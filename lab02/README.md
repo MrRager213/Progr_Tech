@@ -12,15 +12,12 @@
 
 ## Цель работы
 
-Изучить принципы объектно-ориентированного программирования на языке Python и освоить создание классов, наследование, множественное наследование и использование абстрактных классов.
 
 ## Задание
 
-Реализовать иерархию классов для пошаговой компьютерной стратегии.
+Реализовать иерархию классов
 
-Необходимо создать базовый класс `GameObject`, классы `Unit` и `Building`, а также классы `Archer`, `Fort` и `MobileHome`.
-
-Дополнительно необходимо реализовать интерфейсы `Attacker` и `Moveable`, определяющие возможности атаки и перемещения игровых объектов.
+![Картинка 1](./pic1.png)
 
 ## Ход работы
 
@@ -37,15 +34,46 @@
 
 Для получения значений атрибутов реализованы методы `getId()`, `getName()`, `getX()` и `getY()`.
 
+```python
+class GameObject:
+    def __init__(self, id=int, name=str, x=int, y=int):
+        self.id = id
+        self.name = name
+        self.x = x
+        self.y = y
+
+    def getId(self):
+        return self.id
+
+    def getName(self):
+        return self.name
+
+    def getX(self):
+        return self.x
+
+    def getY(self):
+        return self.y
+```
+
 ### 2. Создание интерфейсов Attacker и Moveable
 
 Для определения возможностей игровых объектов были созданы два абстрактных класса.
 
 `Attacker` определяет метод `attack(unit)`, который принимает объект класса `Unit` и позволяет атаковать другой игровой юнит.
 
+```python
+class Attacker(GameObject):
+    def attack(self, unit):
+        pass
+```
+
 `Moveable` определяет метод `move(x, y)`, который принимает две координаты типа `int` и позволяет изменять положение объекта.
 
-Для реализации абстрактных классов использовался модуль `abc` и декоратор `@abstractmethod`.
+```python
+class Moveable(GameObject):
+    def move(self, x=int, y=int):
+        pass
+```
 
 ### 3. Создание класса Unit
 
@@ -59,6 +87,22 @@
 - `getHp()` — возвращает количество здоровья типа `float`;
 - `receiveDamage(damage)` — принимает урон типа `float` и уменьшает здоровье юнита.
 
+```python
+class Unit(GameObject):
+    def __init__(self, id=int, name=str, x=int, y=int, hp=float):
+        super().__init__(id, name, x, y)
+        self.hp = hp
+
+    def isAlive(self):
+        return self.hp > 0
+
+    def getHp(self):
+        return self.hp
+
+    def receiveDamage(self, damage=float):
+        self.hp = max(0, self.hp - damage)
+```
+
 ### 4. Создание класса Archer
 
 Класс `Archer` наследуется от `Unit` и реализует интерфейсы `Attacker` и `Moveable`.
@@ -68,6 +112,16 @@
 - `attack(unit)` — принимает объект класса `Unit` и наносит ему 10 единиц урона;
 - `move(x, y)` — принимает координаты типа `int` и изменяет положение лучника.
 
+```python
+class Archer(Unit, Attacker, Moveable):
+    def attack(self, unit):
+        unit.receiveDamage(10)
+
+    def move(self, x=int, y=int):
+        self.x = x
+        self.y = y
+```
+
 ### 5. Создание класса Building
 
 Класс `Building` наследуется от `GameObject` и описывает игровые постройки.
@@ -76,11 +130,27 @@
 
 Метод `isBuilt()` возвращает значение типа `bool`.
 
+```python
+class Building(GameObject):
+    def __init__(self, id=int, name=str, x=int, y=int, built=bool):
+        super().__init__(id, name=str, x=int, y=int)
+        self.built = built
+
+    def isBuilt(self):
+        return self.built
+```
+
 ### 6. Создание классов Fort и MobileHome
 
 Класс `Fort` наследуется от `Building` и реализует интерфейс `Attacker`. Метод `attack(unit)` принимает объект класса `Unit` и наносит ему 25 единиц урона.
 
 Класс `MobileHome` наследуется от `Building` и реализует интерфейс `Moveable`. Метод `move(x, y)` принимает координаты типа `int` и изменяет положение постройки.
+
+```python
+class Fort(Building, Attacker):
+    def attack(self, unit):
+        unit.receiveDamage(25)
+```
 
 ### 7. Типы входных и выходных данных
 
@@ -114,6 +184,23 @@
 Для проверки были созданы объекты классов `Archer`, `Fort` и `MobileHome`.
 
 Была проверена работа методов атаки, получения урона и перемещения объектов.
+
+```python
+archer1 = Archer(1, "Лучник", 5, 10, 100)
+archer2 = Archer(2, "Лучник", 5, 10, 100)
+fort = Fort(3, "Форт", 3, 4, True)
+house = MobileHome(4, "Мобильное строение", 7, 8, True)
+
+print("Здоровье первого лучника:", archer1.getHp())
+
+archer2.attack(archer1)
+print("Здоровье первого лучника после пропущенной атаки:", archer1.getHp())
+
+house.move(10, 15)
+print("Координаты дома:", house.getX(), house.getY())
+```
+
+![картинка2](./pic2.png)
 
 ## Листинг программы
 
